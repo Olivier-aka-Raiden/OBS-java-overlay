@@ -4,6 +4,7 @@ import dev.nipafx.livefx.command.AddChatMessage;
 import dev.nipafx.livefx.command.Command;
 import dev.nipafx.livefx.pipeline.Source;
 import dev.nipafx.livefx.pipeline.Step;
+import dev.nipafx.livefx.command.ThemeColor;
 import dev.nipafx.livefx.twitch.ChatMessage.Join;
 import dev.nipafx.livefx.twitch.ChatMessage.NameList;
 import dev.nipafx.livefx.twitch.ChatMessage.Ping;
@@ -18,6 +19,7 @@ import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.net.http.WebSocket.Listener;
 import java.nio.ByteBuffer;
+import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 
 public class TwitchChatBot {
@@ -52,7 +54,10 @@ public class TwitchChatBot {
 	}
 
 	private void interpretMessage(TextMessage message) {
-		pipelineSource.emit(new AddChatMessage(message.nick(), message.text(), ""));
+		if (message.text().startsWith("!color "))
+			pipelineSource.emit(new ChangeThemeColorCommand(ThemeColor.valueOf(message.text().substring(7).toUpperCase(Locale.ROOT))));
+		else
+			pipelineSource.emit(new AddChatMessage(message.nick(), message.tags(), message.text(), ""));
 	}
 
 	private void sendPong(WebSocket webSocket, String message) {
@@ -74,47 +79,51 @@ public class TwitchChatBot {
 					.thenCompose(websocket -> {
 						LOG.debug("Joining...");
 						return websocket.sendText("JOIN #" + credentials.userName(), true);
+					})
+					.thenCompose(webSocket1 -> {
+						LOG.debug("Sending request for capabilities...");
+						return webSocket.sendText("Requested commands and tags", true);
 					});
 			Listener.super.onOpen(webSocket);
 		}
 
-		@Override
-		public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
-			throw new IllegalStateException("Caught a ping but didn't reply");
-		}
+        @Override
+        public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
+            throw new IllegalStateException("Caught a ping but didn't reply");
+        }
 
-		@Override
-		public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
-			throw new IllegalStateException("Caught a pong but didn't reply");
-		}
+        @Override
+        public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
+            throw new IllegalStateException("Caught a pong but didn't reply");
+        }
 
-		@Override
-		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-			var msg = data.toString();
-			LOG.trace("Received text message {}", msg);
-			switch (ChatMessage.Factory.create(msg)) {
-				case Welcome(var text) -> LOG.debug("Welcome to channel: {}", text);
-				case Join(var text) -> LOG.debug("Joined channel: {}", text);
-				case NameList(var text) -> LOG.debug("Name list: {}", text);
-				case Ping(var text) -> sendPong(webSocket, text);
-				case TextMessage message -> interpretMessage(message);
-				case Unknown(var text) -> LOG.warn("Unknown Twitch text: {}", text);
-			}
-			return Listener.super.onText(webSocket, data, last);
-		}
+        @Override
+        public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
+            var msg = data.toString();
+            LOG.trace("Received text message {}", msg);
+            switch (ChatMessage.Factory.create(msg)) {
+                case Welcome(var text) -> LOG.debug("Welcome to channel: {}", text);
+                case Join(var text) -> LOG.debug("Joined channel: {}", text);
+                case NameList(var text) -> LOG.debug("Name list: {}", text);
+                case Ping(var text) -> sendPong(webSocket, text);
+                case TextMessage message -> interpretMessage(message);
+                case Unknown(var text) -> LOG.warn("Unknown Twitch text: {}", text);
+            }
+            return Listener.super.onText(webSocket, data, last);
+        }
 
-		@Override
-		public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
-			LOG.info("Connection to Twitch IRC closed with status code {}", statusCode);
-			return Listener.super.onClose(webSocket, statusCode, reason);
-		}
+        @Override
+        public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
+            LOG.info("Connection to Twitch IRC closed with status code {}", statusCode);
+            return Listener.super.onClose(webSocket, statusCode, reason);
+        }
 
-		@Override
-		public void onError(WebSocket webSocket, Throwable error) {
-			LOG.error("Connection to Twitch IRC closed with an error", error);
-			Listener.super.onError(webSocket, error);
-		}
+        @Override
+        public void onError(WebSocket webSocket, Throwable error) {
+            LOG.error("Connection to Twitch IRC closed with an error", error);
+            Listener.super.onError(webSocket, error);
+        }
 
-	}
+    }
 
 }
