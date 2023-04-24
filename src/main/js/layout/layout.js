@@ -1,5 +1,5 @@
 import { classNames } from '../components/functions'
-
+import React from 'react'
 import './colors.css'
 import './fonts.css'
 import style from './layout.module.css'

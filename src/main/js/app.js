@@ -7,10 +7,10 @@ import DebugInfo from "./components/debugInfo";
 
 const config = {
 	"debug": true,
-	"stream": "reboot",
+	"stream": "raiden",
 }
 
-const LAYOUTS = [ "cam, screen", "screen, large cam", "screen, small cam", "screen, small cam, guest2" ]
+const LAYOUTS = [ "cam, screen", "screen, large cam", "screen, small cam", "screen, small cam, guest2", "waiting screen", "game fullscreen cam", "game fullscreen" ]
 const THEMES = [ "green", "red", "orange", "yellow", "blue-light", "blue-dark", "purple", "pink" ]
 
 const App = () => {
@@ -86,10 +86,20 @@ const executeCommand = (command, setLayout, setTheme, addMessage) => {
 				html: command.htmlText,
 			})
 			break
+		case "show-notes":
+			showNotes(10)
+			break
 		case "change-theme-color":
 			setThemeColor(command.newColor, setTheme)
 			break
 	}
+}
+
+const showNotes = (displayTime) => {
+	document.getElementById("misc-tab1").click()
+	setTimeout(() => {
+		document.getElementById("misc-tab0").click()
+	}, displayTime * 1000)
 }
 
 const setThemeColor = (newColor, setTheme) => {

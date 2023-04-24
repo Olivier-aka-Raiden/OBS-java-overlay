@@ -1,5 +1,5 @@
 import { ReadyState } from "react-use-websocket";
-
+import React from 'react'
 import style from './debugInfo.module.css'
 import tabStyle from './tab.module.css'
 

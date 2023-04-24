@@ -1,7 +1,51 @@
 #root.hidden {
 	display: none;
 }
+/*
+ * FULLSCREEN WAITING SCREEN
+ */
+.fullScreen .screen {
+	position: absolute;
+	top: var(--margin);
+	bottom: var(--margin);
+	left: var(--margin);
+	width: var(--max-width);
+}
+/*
+ * CHAT MIDDLE WAITING SCREEN
+ */
+.chatMiddle .misc {
+	position: absolute;
+	top: var(--half-available-height);
+	bottom: var(--margin);
+	left: var(--half-available-width);
+	width: var(--golden-width-remainder)
+}
 
+.fullScreen .camera {
+	display: none;
+}
+/*
+ * FULLSCREEN with cam
+ */
+.fullScreenCam .screen {
+	position: absolute;
+	top: var(--margin);
+	bottom: var(--margin);
+	left: var(--margin);
+	width: var(--max-width);
+}
+.fullScreenCam .camera {
+	position: absolute;
+	top: calc(var(--golden-height) + var(--margin)*2);
+	bottom: var(--margin);
+	left: calc(var(--golden-width) + var(--margin) * 2);
+	height: calc(var(--golden-height-remainder) - var(--margin) * 2);
+	width: calc(var(--golden-width-remainder) - var(--margin) * 2);
+}
+.fullScreenCam .misc {
+	display: none;
+}
 /*
  * LARGE SCREEN LEFT ...
  */

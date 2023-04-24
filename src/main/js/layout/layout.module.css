@@ -14,11 +14,13 @@
 	   (hence three margins; borders are inside the windows) */
 	--available-width: calc(1920px - 3 * var(--margin));
 	--available-height: calc(1080px - 3 * var(--margin));
-
+	--half-available-height: calc((1080px - 3 * var(--margin)) / 2);
+	--half-available-width: calc(((1920px - 3 * var(--margin)) / 2) - (var(--golden-width-remainder) / 2));
 	/* golden ratio: 1.61803398875:1 */
 	/* percentage: 61,8% vs 38,2% */
 	--golden: 0.618;
 	--golden-width: calc(var(--golden) * var(--available-width));
+	--max-width: calc(var(--available-width) + var(--margin));
 	--golden-width-remainder: calc(var(--available-width) - var(--golden-width));
 	--golden-height: calc(var(--golden) * var(--available-height));
 	--golden-height-remainder: calc(var(--available-height) - var(--golden-height));

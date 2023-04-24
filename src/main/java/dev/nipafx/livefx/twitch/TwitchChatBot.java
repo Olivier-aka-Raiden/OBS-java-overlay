@@ -1,9 +1,11 @@
 package dev.nipafx.livefx.twitch;
 
 import dev.nipafx.livefx.command.AddChatMessage;
+import dev.nipafx.livefx.command.ChangeThemeColorCommand;
 import dev.nipafx.livefx.command.Command;
 import dev.nipafx.livefx.pipeline.Source;
 import dev.nipafx.livefx.pipeline.Step;
+import dev.nipafx.livefx.command.ShowNotesCommand;
 import dev.nipafx.livefx.command.ThemeColor;
 import dev.nipafx.livefx.twitch.ChatMessage.Join;
 import dev.nipafx.livefx.twitch.ChatMessage.NameList;
@@ -56,7 +58,9 @@ public class TwitchChatBot {
 	private void interpretMessage(TextMessage message) {
 		if (message.text().startsWith("!color "))
 			pipelineSource.emit(new ChangeThemeColorCommand(ThemeColor.valueOf(message.text().substring(7).toUpperCase(Locale.ROOT))));
-		else
+        else if (message.text().startsWith("!notes"))
+            pipelineSource.emit(new ShowNotesCommand());
+        else
 			pipelineSource.emit(new AddChatMessage(message.nick(), message.tags(), message.text(), ""));
 	}
 
@@ -71,7 +75,7 @@ public class TwitchChatBot {
 		public void onOpen(WebSocket webSocket) {
 			LOG.info("Opened web socket connection to Twitch IRC");
 			LOG.debug("Sending PASS...");
-			webSocket.sendText("PASS oauth:" + credentials.appToken(), true)
+			webSocket.sendText("PASS oauth:" + credentials.userToken(), true)
 					.thenCompose(websocket -> {
 						LOG.debug("Sending NICK...");
 						return websocket.sendText("NICK " + credentials.userName(), true);
@@ -82,7 +86,7 @@ public class TwitchChatBot {
 					})
 					.thenCompose(webSocket1 -> {
 						LOG.debug("Sending request for capabilities...");
-						return webSocket.sendText("Requested commands and tags", true);
+						return webSocket.sendText("CAP REQ :twitch.tv/tags twitch.tv/commands", true);
 					});
 			Listener.super.onOpen(webSocket);
 		}

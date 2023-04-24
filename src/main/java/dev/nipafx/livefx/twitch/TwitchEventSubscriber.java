@@ -62,15 +62,15 @@ public class TwitchEventSubscriber {
 				});
 	}
 
-	private void handleSubscriptionEvent(Map<String, Object> message) {
-		switch (Event.Factory.create(message)) {
-			case SessionWelcome welcome -> process(welcome);
-			case KeepAlive alive -> LOG.trace("Keep alive: {}", alive);
-			case RewardRedemption rewardRedemption -> process(rewardRedemption);
-			case Unknown __ -> LOG.warn("Unknown Twitch event: {}", message);
-			case Error(var error, var __, var ___) -> LOG.error("Error while parsing Twitch event", error);
-		}
-	}
+    private void handleSubscriptionEvent(Map<String, Object> message) {
+        switch (Event.Factory.create(message)) {
+            case SessionWelcome welcome -> process(welcome);
+            case KeepAlive alive -> LOG.trace("Keep alive: {}", alive);
+            case RewardRedemption rewardRedemption -> process(rewardRedemption);
+            case Unknown __ -> LOG.warn("Unknown Twitch event: {}", message);
+            case Error(var error, var __, var ___) -> LOG.error("Error while parsing Twitch event", error);
+        }
+    }
 
 	private void process(SessionWelcome welcome) {
 		LOG.debug("Processing welcome event: {}", welcome);
@@ -114,53 +114,53 @@ public class TwitchEventSubscriber {
 		}
 	}
 
-	private class WebSocketListener implements WebSocket.Listener {
+    private class WebSocketListener implements WebSocket.Listener {
 
-		@Override
-		public void onOpen(WebSocket webSocket) {
-			LOG.info("Opened web socket connection to Twitch Event Publisher");
-			WebSocket.Listener.super.onOpen(webSocket);
-		}
+        @Override
+        public void onOpen(WebSocket webSocket) {
+            LOG.info("Opened web socket connection to Twitch Event Publisher");
+            WebSocket.Listener.super.onOpen(webSocket);
+        }
 
-		@Override
-		public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
-			LOG.trace("Received ping {}", new String(message.array()));
-			webSocket.sendPong(message);
-			return WebSocket.Listener.super.onPing(webSocket, message);
-		}
+        @Override
+        public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
+            LOG.trace("Received ping {}", new String(message.array()));
+            webSocket.sendPong(message);
+            return WebSocket.Listener.super.onPing(webSocket, message);
+        }
 
-		@Override
-		public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
-			LOG.warn("Received pong (weird!) {}", new String(message.array()));
-			return WebSocket.Listener.super.onPong(webSocket, message);
-		}
+        @Override
+        public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
+            LOG.warn("Received pong (weird!) {}", new String(message.array()));
+            return WebSocket.Listener.super.onPong(webSocket, message);
+        }
 
-		@Override
-		public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-			var message = data.toString();
-			LOG.trace("Received text event {}", message);
-			try {
-				@SuppressWarnings("unchecked")
-				Map<String, Object> msg = jsonMapper.readValue(message, Map.class);
-				handleSubscriptionEvent(msg);
-			} catch (JsonProcessingException ex) {
-				LOG.error("Error while parsing Twitch event", ex);
-			}
-			return WebSocket.Listener.super.onText(webSocket, data, last);
-		}
+        @Override
+        public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
+            var message = data.toString();
+            LOG.trace("Received text event {}", message);
+            try {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> msg = jsonMapper.readValue(message, Map.class);
+                handleSubscriptionEvent(msg);
+            } catch (JsonProcessingException ex) {
+                LOG.error("Error while parsing Twitch event", ex);
+            }
+            return WebSocket.Listener.super.onText(webSocket, data, last);
+        }
 
-		@Override
-		public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
-			LOG.info("Connection to Twitch Event Publisher closed with status code {}", statusCode);
-			return WebSocket.Listener.super.onClose(webSocket, statusCode, reason);
-		}
+        @Override
+        public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
+            LOG.info("Connection to Twitch Event Publisher closed with status code {}", statusCode);
+            return WebSocket.Listener.super.onClose(webSocket, statusCode, reason);
+        }
 
-		@Override
-		public void onError(WebSocket webSocket, Throwable error) {
-			LOG.error("Connection to Twitch Event Publisher closed with an error", error);
-			WebSocket.Listener.super.onError(webSocket, error);
-		}
+        @Override
+        public void onError(WebSocket webSocket, Throwable error) {
+            LOG.error("Connection to Twitch Event Publisher closed with an error", error);
+            WebSocket.Listener.super.onError(webSocket, error);
+        }
 
-	}
+    }
 
 }

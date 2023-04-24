@@ -1,5 +1,4 @@
 import React from 'react'
-
 import style from './window.module.css'
 
 const Window = ({ name, className, children }) => {
