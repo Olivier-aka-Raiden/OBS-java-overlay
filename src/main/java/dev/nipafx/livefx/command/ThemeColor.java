@@ -8,6 +8,7 @@ public enum ThemeColor {
 	YELLOW,
 	BLUE_LIGHT,
 	BLUE_DARK,
+	BLUE,
 	PURPLE,
 	PINK
 

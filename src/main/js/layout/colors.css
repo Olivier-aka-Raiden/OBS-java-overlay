@@ -16,6 +16,8 @@ body {
 	--theme-green-rgb: 105, 234, 125;
 	--theme-blue-dark: #2368CB;
 	--theme-blue-dark-rgb: 35, 104, 203;
+	--theme-blue: #2B65EC;
+	--theme-blue-rgb: 43, 101, 236;
 	--theme-blue-light: #26B9D7;
 	--theme-blue-light-rgb: 38, 185, 215;
 	--theme-pink: #E83D89;
@@ -57,6 +59,10 @@ body {
 
 .theme-blue-dark {
 	--alt-color: var(--theme-blue-dark);
+}
+
+.theme-blue {
+	--alt-color: var(--theme-blue);
 }
 
 .theme-blue-light {

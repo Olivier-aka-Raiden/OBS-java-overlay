@@ -3,10 +3,10 @@ package dev.nipafx.livefx.twitch;
 import dev.nipafx.livefx.command.AddChatMessage;
 import dev.nipafx.livefx.command.ChangeThemeColorCommand;
 import dev.nipafx.livefx.command.Command;
-import dev.nipafx.livefx.pipeline.Source;
-import dev.nipafx.livefx.pipeline.Step;
 import dev.nipafx.livefx.command.ShowNotesCommand;
 import dev.nipafx.livefx.command.ThemeColor;
+import dev.nipafx.livefx.pipeline.Source;
+import dev.nipafx.livefx.pipeline.Step;
 import dev.nipafx.livefx.twitch.ChatMessage.Join;
 import dev.nipafx.livefx.twitch.ChatMessage.NameList;
 import dev.nipafx.livefx.twitch.ChatMessage.Ping;
@@ -26,70 +26,76 @@ import java.util.concurrent.CompletionStage;
 
 public class TwitchChatBot {
 
-	private static final URI TWITCH_IRC_URL = URI.create("wss://irc-ws.chat.twitch.tv:443");
+    private static final URI TWITCH_IRC_URL = URI.create("wss://irc-ws.chat.twitch.tv:443");
 
-	private static final Logger LOG = LoggerFactory.getLogger(TwitchChatBot.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TwitchChatBot.class);
 
-	private final TwitchCredentials credentials;
-	private final Source<Command> pipelineSource;
+    private final TwitchCredentials credentials;
+    private final Source<Command> pipelineSource;
 
-	public TwitchChatBot(TwitchCredentials credentials) {
-		this.credentials = credentials;
-		this.pipelineSource = Source.create();
-	}
+    public TwitchChatBot(TwitchCredentials credentials) {
+        this.credentials = credentials;
+        this.pipelineSource = Source.create();
+    }
 
-	public Step<Command> source() {
-		return pipelineSource.asStep();
-	}
+    public Step<Command> source() {
+        return pipelineSource.asStep();
+    }
 
-	public void connectAndListen() {
-		HttpClient
-				.newHttpClient()
-				.newWebSocketBuilder()
-				.buildAsync(TWITCH_IRC_URL, new WebSocketListener())
-				.whenComplete((websocket, throwable) -> {
-					if (websocket != null)
-						LOG.info("Successfully connected to Twitch IRC");
-					if (throwable != null)
-						LOG.error("Could not connect to Twitch IRC", throwable);
-				});
-	}
+    public void connectAndListen() {
+        HttpClient
+                .newHttpClient()
+                .newWebSocketBuilder()
+                .buildAsync(TWITCH_IRC_URL, new WebSocketListener())
+                .whenComplete((websocket, throwable) -> {
+                    if (websocket != null)
+                        LOG.info("Successfully connected to Twitch IRC");
+                    if (throwable != null)
+                        LOG.error("Could not connect to Twitch IRC", throwable);
+                });
+    }
 
-	private void interpretMessage(TextMessage message) {
-		if (message.text().startsWith("!color "))
-			pipelineSource.emit(new ChangeThemeColorCommand(ThemeColor.valueOf(message.text().substring(7).toUpperCase(Locale.ROOT))));
-        else if (message.text().startsWith("!notes"))
+    private void interpretMessage(TextMessage message) {
+        if (message.text().startsWith("!color ")) {
+            try {
+                pipelineSource.emit(new ChangeThemeColorCommand(ThemeColor.valueOf(message.text().substring(7).toUpperCase(Locale.ROOT))));
+            } catch (Exception e) {
+                // do nothing
+                pipelineSource.emit(new ShowNotesCommand());
+            }
+        } else if (message.text().startsWith("!notes")) {
             pipelineSource.emit(new ShowNotesCommand());
-        else
-			pipelineSource.emit(new AddChatMessage(message.nick(), message.tags(), message.text(), ""));
-	}
+        } else {
+            pipelineSource.emit(new AddChatMessage(message.nick(), message.tags(), message.text(), ""));
+        }
+    }
 
-	private void sendPong(WebSocket webSocket, String message) {
-		LOG.debug("Sending PONG...");
-		webSocket.sendText("PONG :" + message, true);
-	}
+    private void sendPong(WebSocket webSocket, String message) {
+        LOG.debug("Sending PONG...");
+        webSocket.sendText("PONG :" + message, true);
+    }
 
-	private class WebSocketListener implements Listener {
+    private class WebSocketListener implements Listener {
 
-		@Override
-		public void onOpen(WebSocket webSocket) {
-			LOG.info("Opened web socket connection to Twitch IRC");
-			LOG.debug("Sending PASS...");
-			webSocket.sendText("PASS oauth:" + credentials.userToken(), true)
-					.thenCompose(websocket -> {
-						LOG.debug("Sending NICK...");
-						return websocket.sendText("NICK " + credentials.userName(), true);
-					})
-					.thenCompose(websocket -> {
-						LOG.debug("Joining...");
-						return websocket.sendText("JOIN #" + credentials.userName(), true);
-					})
-					.thenCompose(webSocket1 -> {
-						LOG.debug("Sending request for capabilities...");
-						return webSocket.sendText("CAP REQ :twitch.tv/tags twitch.tv/commands", true);
-					});
-			Listener.super.onOpen(webSocket);
-		}
+        @Override
+        public void onOpen(WebSocket webSocket) {
+            LOG.info("Opened web socket connection to Twitch IRC");
+            LOG.debug("Sending PASS...");
+            webSocket.sendText("PASS oauth:" + credentials.userToken(), true)
+                    .thenCompose(websocket -> {
+                        LOG.debug("Sending NICK...");
+                        return websocket.sendText("NICK " + credentials.userName(), true);
+                    })
+                    .thenCompose(websocket -> {
+                        LOG.debug("Joining...");
+                        return websocket.sendText("JOIN #" + credentials.userName(), true);
+                    })
+                    .thenCompose(webSocket1 -> {
+                        LOG.debug("Sending request for capabilities...");
+                        return webSocket.sendText("CAP REQ :twitch.tv/tags twitch.tv/commands", true);
+                    });
+            Listener.super.onOpen(webSocket);
+        }
 
         @Override
         public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {

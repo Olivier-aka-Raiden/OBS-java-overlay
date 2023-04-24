@@ -27,6 +27,9 @@ const Chat = ({messages}) => {
         }]
     const reorderedMessages = [...messages]
     reorderedMessages.reverse()
+    if (messages.length > 20) {
+        messages.pop()
+    }
     return (
         <div className={tabStyle.content + " " + style.container}>
             <div className={style.messageBox}>{messages.map(message => {

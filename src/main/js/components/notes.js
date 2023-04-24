@@ -19,7 +19,7 @@ const raiden = () => (
 	<>
 		<h1>Raiden - dev / code stream</h1>
 		<p>Je suis dev et j'aime tester coder des trucs. </p>
-		<p><b>!color red</b> change overlay color : green, red, orange, yellow, blue_light, blue_dark, purple and pink !</p>
+		<p><b>!color red</b> change overlay color : green, red, orange, yellow, blue, blue_light, blue_dark, purple and pink !</p>
 		<p>Welcome ! I'm currently testing and experimenting an overlay made in Java.</p>
 		<p>Credits to Nicolaï Parlog</p>
 	</>
