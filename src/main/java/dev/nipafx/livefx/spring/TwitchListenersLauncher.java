@@ -4,23 +4,25 @@ import dev.nipafx.livefx.twitch.TwitchChatBot;
 import dev.nipafx.livefx.twitch.TwitchEventSubscriber;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 public class TwitchListenersLauncher implements ApplicationRunner {
 
 	private final TwitchChatBot chatBot;
-	private final TwitchEventSubscriber eventListener;
+	private final TwitchEventSubscriber eventSubscriber;
 
-	public TwitchListenersLauncher(TwitchChatBot chatBot, TwitchEventSubscriber eventListener) {
+	public TwitchListenersLauncher(TwitchChatBot chatBot, TwitchEventSubscriber eventSubscriber) {
 		this.chatBot = chatBot;
-		this.eventListener = eventListener;
+		this.eventSubscriber = eventSubscriber;
 	}
 
+	@Order(1)
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		chatBot.connectAndListen();
-		eventListener.connectAndSubscribe();
+		eventSubscriber.connectAndSubscribe();
 	}
 
 }
