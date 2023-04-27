@@ -47,6 +47,29 @@
 	display: none;
 }
 /*
+ * FULLSCREEN VALO
+ */
+.fullScreenValorant .screen {
+	position: absolute;
+	top: var(--margin);
+	bottom: var(--margin);
+	left: var(--margin);
+	width: var(--max-width);
+}
+
+.fullScreenValorant .camera {
+	position: absolute;
+	top: calc(var(--margin)*2 + 100px);
+	bottom: calc(var(--available-height) - var(--margin)*2 - 300px);
+	left: calc(50px + var(--margin) * 2);
+	height: calc((var(--golden-height-remainder) - var(--margin) * 2) / 1.5);
+	width: calc((var(--golden-width-remainder) - var(--margin) * 2) / 1.5);
+}
+
+.fullScreenValorant .misc {
+	display: none;
+}
+/*
  * LARGE SCREEN LEFT ...
  */
 

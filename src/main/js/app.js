@@ -10,7 +10,7 @@ const config = {
 	"stream": "raiden",
 }
 
-const LAYOUTS = [ "cam, screen", "screen, large cam", "screen, small cam", "screen, small cam, guest2", "waiting screen", "game fullscreen cam", "game fullscreen" ]
+const LAYOUTS = [ "cam, screen", "screen, large cam", "screen, small cam", "screen, small cam, guest2", "waiting screen", "game fullscreen cam", "game fullscreen", "valorant fullscreen" ]
 const THEMES = [ "green", "red", "orange", "yellow", "blue-light", "blue-dark", "purple", "pink" ]
 
 const App = () => {

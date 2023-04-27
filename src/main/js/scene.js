@@ -40,9 +40,9 @@ const Scene = ({ layout, theme, stream, guest, guest2, messages, children }) => 
 			<div>
 				<div id={style.filler1} className={style.filler} />
 				<div id={style.filler2} className={style.filler} />
-				<div id={style.filler3} style={[ "waiting screen", "game fullscreen", "game fullscreen cam" ].includes(layout) ? {display:'none'} : {}} className={style.filler} />
+				<div id={style.filler3} style={[ "waiting screen", "game fullscreen", "game fullscreen cam", "valorant fullscreen" ].includes(layout) ? {display:'none'} : {}} className={style.filler} />
 				<div id={style.filler4} className={style.filler} />
-				<div id={style.filler5} style={[ "waiting screen", "game fullscreen", "game fullscreen cam" ].includes(layout) ? {display:'none'} : {}} className={style.filler} />
+				<div id={style.filler5} style={[ "waiting screen", "game fullscreen", "game fullscreen cam", "valorant fullscreen" ].includes(layout) ? {display:'none'} : {}} className={style.filler} />
 				<div id={style.filler6} className={style.filler} />
 				<div id={style.filler7} className={style.filler} />
 			</div>
@@ -67,6 +67,8 @@ const determineLayoutClasses = name => {
 			return [style.fullScreen]
 		case "game fullscreen cam":
 			return [style.fullScreenCam]
+		case "valorant fullscreen":
+			return [style.fullScreenValorant]
 		default:
 			return [ style.hidden ]
 	}
